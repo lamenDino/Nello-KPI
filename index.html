@@ -664,6 +664,65 @@ button:focus{ outline: none; box-shadow: 0 10px 30px rgba(0,0,0,.22), 0 0 0 6px 
   box-shadow: 0 30px 90px rgba(0,0,0,.8);
   padding:16px;
 }
+
+/* Backfill weekly inputs */
+.weekHeader{
+  display:grid;
+  grid-template-columns: 56px 1fr 1fr 1fr;
+  gap:10px;
+  align-items:center;
+  padding: 6px 6px 8px;
+  color:#9aa1b5;
+  font-size:12px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.weekRow{
+  display:grid;
+  grid-template-columns: 56px 1fr 1fr 1fr;
+  gap:10px;
+  align-items:center;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.06);
+  background: rgba(255,255,255,.03);
+}
+.weekTag{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height: 38px;
+  border-radius: 12px;
+  color:#dbe7ff;
+  font-weight:800;
+  letter-spacing:.08em;
+  background: rgba(0,200,255,.10);
+  border: 1px solid rgba(0,200,255,.22);
+}
+.weekRow input{
+  height: 38px;
+  border-radius: 12px;
+  text-align:center;
+}
+
+/* Edit button in stats */
+.miniEdit{
+  width:34px; height:34px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.06);
+  color: #e9f7ff;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition: transform .12s ease, box-shadow .18s ease, background .18s ease;
+}
+.miniEdit:active{ transform: scale(.96); }
+.miniEdit:hover{
+  background: rgba(0,240,255,.10);
+  box-shadow: 0 0 0 3px rgba(0,240,255,.08), 0 12px 30px rgba(0,240,255,.08);
+}
 .modal h2{ margin:0; font-size:16px; font-weight:900; }
 .modal p{ margin:6px 0 0; color:#aab0c0; font-size:12px; line-height:1.4; }
 .modal .grid1{ display:grid; grid-template-columns: 1fr; gap:10px; margin-top:12px; }
@@ -988,33 +1047,82 @@ hr.sep{border:0; border-top:1px solid rgba(255,255,255,.08); margin:12px 0;}
       <div style="margin-top:10px;">
         <label>Tipo dato</label>
         <select id="histType">
-          <option value="counts">Sì / No / Ricontatti</option>
+          <option value="monthly">Totale mese (Sì / No / Ric)</option>
+          <option value="weekly">Settimanale (W1–W5)</option>
           <option value="percent">Solo percentuale finale</option>
         </select>
+        <div style="color:#9aa1b5;font-size:12px;margin-top:6px;">
+          Puoi inserire il totale mensile oppure il dettaglio settimanale (verrà sommato automaticamente).
+        </div>
       </div>
 
       <div id="histCounts" class="row3" style="margin-top:10px;">
         <div>
           <label>Sì</label>
-          <input id="histYes" type="number" min="0" step="1" value="0" inputmode="numeric">
+          <input id="histYes" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
         </div>
         <div>
           <label>No</label>
-          <input id="histNo" type="number" min="0" step="1" value="0" inputmode="numeric">
+          <input id="histNo" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
         </div>
         <div>
           <label>Ric</label>
-          <input id="histRec" type="number" min="0" step="1" value="0" inputmode="numeric">
+          <input id="histRec" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+        </div>
+      </div>
+
+      <div id="histWeekly" class="hidden" style="margin-top:10px;">
+        <div class="weekHeader">
+          <div></div>
+          <div>Sì</div>
+          <div>No</div>
+          <div>Ric</div>
+        </div>
+
+        <div class="weekRow">
+          <div class="weekTag">W1</div>
+          <input id="histW1Yes" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+          <input id="histW1No" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+          <input id="histW1Rec" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+        </div>
+        <div class="weekRow">
+          <div class="weekTag">W2</div>
+          <input id="histW2Yes" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+          <input id="histW2No" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+          <input id="histW2Rec" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+        </div>
+        <div class="weekRow">
+          <div class="weekTag">W3</div>
+          <input id="histW3Yes" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+          <input id="histW3No" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+          <input id="histW3Rec" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+        </div>
+        <div class="weekRow">
+          <div class="weekTag">W4</div>
+          <input id="histW4Yes" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+          <input id="histW4No" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+          <input id="histW4Rec" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+        </div>
+        <div class="weekRow">
+          <div class="weekTag">W5</div>
+          <input id="histW5Yes" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+          <input id="histW5No" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+          <input id="histW5Rec" type="number" min="0" step="1" value="" placeholder="" inputmode="numeric">
+        </div>
+
+        <div style="color:#9aa1b5;font-size:12px;margin-top:8px;">
+          Il totale mensile viene calcolato sommando W1–W5.
         </div>
       </div>
 
       <div id="histPercentWrap" class="hidden" style="margin-top:10px;">
         <label>% finale</label>
-        <input id="histPercent" type="number" min="0" max="100" step="0.01" value="0" inputmode="decimal">
+        <input id="histPercent" type="number" min="0" max="100" step="0.01" value="" placeholder="" inputmode="decimal">
         <div style="color:#9aa1b5;font-size:12px;margin-top:6px;">
           Se inserisci solo la %, nelle statistiche i conteggi saranno mostrati come “—”.
         </div>
       </div>
+
     </div>
 
     <div class="grid2" style="margin-top:12px;">
@@ -1240,10 +1348,28 @@ const histChannel = document.getElementById("histChannel");
 const histTarget = document.getElementById("histTarget");
 const histType = document.getElementById("histType");
 const histCounts = document.getElementById("histCounts");
+const histWeekly = document.getElementById("histWeekly");
 const histPercentWrap = document.getElementById("histPercentWrap");
 const histYes = document.getElementById("histYes");
 const histNo = document.getElementById("histNo");
 const histRec = document.getElementById("histRec");
+
+const histW1Yes = document.getElementById("histW1Yes");
+const histW1No  = document.getElementById("histW1No");
+const histW1Rec = document.getElementById("histW1Rec");
+const histW2Yes = document.getElementById("histW2Yes");
+const histW2No  = document.getElementById("histW2No");
+const histW2Rec = document.getElementById("histW2Rec");
+const histW3Yes = document.getElementById("histW3Yes");
+const histW3No  = document.getElementById("histW3No");
+const histW3Rec = document.getElementById("histW3Rec");
+const histW4Yes = document.getElementById("histW4Yes");
+const histW4No  = document.getElementById("histW4No");
+const histW4Rec = document.getElementById("histW4Rec");
+const histW5Yes = document.getElementById("histW5Yes");
+const histW5No  = document.getElementById("histW5No");
+const histW5Rec = document.getElementById("histW5Rec");
+
 const histPercent = document.getElementById("histPercent");
 const histSave = document.getElementById("histSave");
 const histCancel = document.getElementById("histCancel");
@@ -2326,7 +2452,7 @@ function renderStats(){
     summaryHtml = `<div class="statsSummary two">${summaryCard(`Anno ${y} — Telefono`, sumPhone)}${summaryCard(`Anno ${y} — Messaggistica`, sumChat)}</div>`;
   }
 
-  function monthBlock(chLabel, chObj){
+  function monthBlock(chLabel, chObj, mk, chKey){
     if(!chObj){
       return `<div class="block">
         <div class="blockTop">
@@ -2343,11 +2469,16 @@ function renderStats(){
       : `Sì ${st.counts.yes} · No ${st.counts.no} · Ric ${st.counts.rec}`;
 
     const percentTag = st.percentOnly ? `<span class="chip">solo %</span>` : "";
+    const canEdit = hasAnyData(chObj);
+    const editBtn = canEdit ? `<button class="miniEdit" type="button" data-y="${y}" data-m="${mk}" data-ch="${chKey}" aria-label="Modifica ${chLabel}">✎</button>` : "";
 
     return `<div class="block">
       <div class="blockTop">
         <div class="label">${chLabel} ${percentTag}</div>
-        ${statusIconHtml(st.r, st.target)}
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${editBtn}
+          ${statusIconHtml(st.r, st.target)}
+        </div>
       </div>
       <div class="blockKpi">${pctStr(st.r)}</div>
       <div class="blockMeta">${countsTxt}<br><b>Target:</b> ${fmtTarget(st.target)}</div>
@@ -2367,10 +2498,10 @@ function renderStats(){
     if(filter === "all" && !hasP && !hasC) return "";
 
     const blocks = (filter === "phone")
-      ? `<div class="monthBlocks">${monthBlock("Telefono", pObj)}</div>`
+      ? `<div class="monthBlocks">${monthBlock("Telefono", pObj, mk, "phone")}</div>`
       : (filter === "chat")
-        ? `<div class="monthBlocks">${monthBlock("Messaggistica", cObj)}</div>`
-        : `<div class="monthBlocks two">${monthBlock("Telefono", pObj)}${monthBlock("Messaggistica", cObj)}</div>`;
+        ? `<div class="monthBlocks">${monthBlock("Messaggistica", cObj, mk, "chat")}</div>`
+        : `<div class="monthBlocks two">${monthBlock("Telefono", pObj, mk, "phone")}${monthBlock("Messaggistica", cObj, mk, "chat")}</div>`;
 
     return `<div class="monthCard">
       <div class="monthHead">
@@ -2386,10 +2517,15 @@ function renderStats(){
     : `<div class="summaryMeta" style="margin-top:12px;">Nessun dato salvato per i filtri selezionati. Usa “Aggiungi dati mesi precedenti”.</div>`;
 
   statsGrid.innerHTML = summaryHtml + listHtml;
+  // bind edit buttons (open backfill modal prefilled)
+  statsGrid.querySelectorAll(".miniEdit").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+      e.preventDefault(); e.stopPropagation();
+      openHistoryModalWith(btn.dataset.y, btn.dataset.m, btn.dataset.ch);
+    });
+  });
 }
 statsChannel.addEventListener("change", ()=>{ tick(); renderStats(); });
-statsYear.addEventListener("change", ()=>{ tick(); renderStats(); });
-("change", ()=>{ tick(); renderStats(); });
 statsYear.addEventListener("change", ()=>{ tick(); renderStats(); });
 
 
@@ -2409,6 +2545,76 @@ function fillHistYearMonth(){
     .map(m=>`<option value="${m}">${monthLabel(m)}</option>`).join("");
 }
 
+function clearHistInputs(){
+  // Blank values (no more default "0" in inputs)
+  histYes.value = ""; histNo.value = ""; histRec.value = "";
+  histPercent.value = "";
+  // weekly
+  for(const el of [histW1Yes,histW1No,histW1Rec,histW2Yes,histW2No,histW2Rec,histW3Yes,histW3No,histW3Rec,histW4Yes,histW4No,histW4Rec,histW5Yes,histW5No,histW5Rec]){
+    if(el) el.value = "";
+  }
+}
+
+function setBlankOrNumber(inputEl, num){
+  if(!inputEl) return;
+  const n = Number(num);
+  if(!Number.isFinite(n) || n === 0) inputEl.value = "";
+  else inputEl.value = String(Math.trunc(n));
+}
+
+function prefillHistoryFromExisting(){
+  const y = String(histYear.value||"").trim();
+  const m = String(histMonth.value||"").trim();
+  const ch = String(histChannel.value||"").trim();
+  if(!y || !m || !ch) return;
+
+  ensurePath(y, m);
+  const chObj = getChannelObj(y, m, ch);
+
+  // target
+  histTarget.value = Number(chObj?.target ?? 86);
+
+  const existing = hasAnyData(chObj);
+  histSave.textContent = existing ? "Aggiorna" : "Salva";
+
+  // reset fields, then load
+  clearHistInputs();
+
+  // override percent has priority
+  if(chObj.overridePercent !== null && chObj.overridePercent !== undefined){
+    histType.value = "percent";
+    setHistTypeUI();
+    const pp = Math.round((Number(chObj.overridePercent) * 100) * 100) / 100;
+    histPercent.value = (pp === 0 ? "" : String(pp));
+    return;
+  }
+
+  // weekly mode
+  const mode = chObj.mode || "monthly";
+  const wk = Array.isArray(chObj.weeks) ? chObj.weeks : [];
+  const wkHas = (mode === "weekly") && wk.some(v => (clampInt(Number(v.yes)) + clampInt(Number(v.no)) + clampInt(Number(v.rec))) > 0);
+
+  if(wkHas){
+    histType.value = "weekly";
+    setHistTypeUI();
+    const w = (i) => wk[i] || {yes:0,no:0,rec:0};
+    setBlankOrNumber(histW1Yes, w(0).yes); setBlankOrNumber(histW1No, w(0).no); setBlankOrNumber(histW1Rec, w(0).rec);
+    setBlankOrNumber(histW2Yes, w(1).yes); setBlankOrNumber(histW2No, w(1).no); setBlankOrNumber(histW2Rec, w(1).rec);
+    setBlankOrNumber(histW3Yes, w(2).yes); setBlankOrNumber(histW3No, w(2).no); setBlankOrNumber(histW3Rec, w(2).rec);
+    setBlankOrNumber(histW4Yes, w(3).yes); setBlankOrNumber(histW4No, w(3).no); setBlankOrNumber(histW4Rec, w(3).rec);
+    setBlankOrNumber(histW5Yes, w(4).yes); setBlankOrNumber(histW5No, w(4).no); setBlankOrNumber(histW5Rec, w(4).rec);
+    return;
+  }
+
+  // monthly counts
+  histType.value = "monthly";
+  setHistTypeUI();
+  const mm = chObj.monthly || {yes:0,no:0,rec:0};
+  setBlankOrNumber(histYes, mm.yes);
+  setBlankOrNumber(histNo,  mm.no);
+  setBlankOrNumber(histRec, mm.rec);
+}
+
 function openHistoryModal(){
   fillHistYearMonth();
 
@@ -2421,23 +2627,32 @@ function openHistoryModal(){
   if(f === "phone" || f === "chat") histChannel.value = f;
   else histChannel.value = "phone";
 
-  // pull target from saved data if available
-  const y = histYear.value;
-  const m = histMonth.value;
-  const ch = histChannel.value;
-  const chObj = getChannelObj(y, m, ch);
-  histTarget.value = Number(chObj?.target ?? 86);
-
-  // reset inputs
-  histType.value = "counts";
-  histYes.value = 0; histNo.value = 0; histRec.value = 0;
-  histPercent.value = 0;
-  histCounts.classList.remove("hidden");
-  histPercentWrap.classList.add("hidden");
+  // default type
+  histType.value = "monthly";
+  setHistTypeUI();
 
   histError.style.display="none";
   histError.textContent="";
 
+  // load existing (or blank)
+  prefillHistoryFromExisting();
+
+  historyOverlay.style.display = "flex";
+}
+
+function openHistoryModalWith(year, month, channel){
+  fillHistYearMonth();
+  histYear.value = String(year || nowYear());
+  histMonth.value = String(month || nowMonth());
+  histChannel.value = String(channel || "phone");
+
+  histType.value = "monthly";
+  setHistTypeUI();
+
+  histError.style.display="none";
+  histError.textContent="";
+
+  prefillHistoryFromExisting();
   historyOverlay.style.display = "flex";
 }
 
@@ -2449,8 +2664,14 @@ function setHistTypeUI(){
   const t = histType.value;
   if(t === "percent"){
     histCounts.classList.add("hidden");
+    histWeekly.classList.add("hidden");
     histPercentWrap.classList.remove("hidden");
+  }else if(t === "weekly"){
+    histCounts.classList.add("hidden");
+    histPercentWrap.classList.add("hidden");
+    histWeekly.classList.remove("hidden");
   }else{
+    histWeekly.classList.add("hidden");
     histPercentWrap.classList.add("hidden");
     histCounts.classList.remove("hidden");
   }
@@ -2468,29 +2689,18 @@ histCancel.addEventListener("click", closeHistoryModal);
 historyOverlay.addEventListener("click", (e)=>{ if(e.target===historyOverlay) closeHistoryModal(); });
 histType.addEventListener("change", ()=>{ tick(); setHistTypeUI(); });
 histChannel.addEventListener("change", ()=>{
-  // update target when channel changes
-  const y = histYear.value;
-  const m = histMonth.value;
-  const ch = histChannel.value;
-  const chObj = getChannelObj(y, m, ch);
-  histTarget.value = Number(chObj?.target ?? 86);
+  tick();
+  prefillHistoryFromExisting();
 });
 
 histYear.addEventListener("change", ()=>{
-  // ensure data path exists and keep target synced
-  const y = histYear.value;
-  const m = histMonth.value;
-  const ch = histChannel.value;
-  const chObj = getChannelObj(y, m, ch);
-  histTarget.value = Number(chObj?.target ?? 86);
+  tick();
+  prefillHistoryFromExisting();
 });
 
 histMonth.addEventListener("change", ()=>{
-  const y = histYear.value;
-  const m = histMonth.value;
-  const ch = histChannel.value;
-  const chObj = getChannelObj(y, m, ch);
-  histTarget.value = Number(chObj?.target ?? 86);
+  tick();
+  prefillHistoryFromExisting();
 });
 
 histSave.addEventListener("click", ()=>{
@@ -2519,10 +2729,33 @@ histSave.addEventListener("click", ()=>{
     chObj.mode = "monthly";
     chObj.monthly = {yes:0,no:0,rec:0};
     chObj.weeks = Array.from({length:5}, ()=>({yes:0,no:0,rec:0}));
+  }else if(typ === "weekly"){
+    const w = [
+      { yes: clampInt(Number(histW1Yes.value||0)), no: clampInt(Number(histW1No.value||0)), rec: clampInt(Number(histW1Rec.value||0)) },
+      { yes: clampInt(Number(histW2Yes.value||0)), no: clampInt(Number(histW2No.value||0)), rec: clampInt(Number(histW2Rec.value||0)) },
+      { yes: clampInt(Number(histW3Yes.value||0)), no: clampInt(Number(histW3No.value||0)), rec: clampInt(Number(histW3Rec.value||0)) },
+      { yes: clampInt(Number(histW4Yes.value||0)), no: clampInt(Number(histW4No.value||0)), rec: clampInt(Number(histW4Rec.value||0)) },
+      { yes: clampInt(Number(histW5Yes.value||0)), no: clampInt(Number(histW5No.value||0)), rec: clampInt(Number(histW5Rec.value||0)) }
+    ];
+
+    // validations
+    let totYes=0, totNo=0, totRec=0;
+    for(const wk of w){
+      if(wk.rec > wk.yes) return showHistErr("Ricontatti non possono superare i Sì (per settimana).");
+      totYes += wk.yes; totNo += wk.no; totRec += wk.rec;
+    }
+    if((totYes + totNo) <= 0) return showHistErr("Inserisci almeno un Sì o un No (anche solo in una settimana).");
+    if(totRec > totYes) return showHistErr("Ricontatti non possono superare i Sì (totale).");
+
+    chObj.overridePercent = null;
+    chObj.mode = "weekly";
+    chObj.weeks = w;
+    // keep a monthly snapshot too (useful for other UI parts)
+    chObj.monthly = { yes: totYes, no: totNo, rec: totRec };
   }else{
-    const yes = clampInt(Number(histYes.value));
-    const no  = clampInt(Number(histNo.value));
-    const rec = clampInt(Number(histRec.value));
+    const yes = clampInt(Number(histYes.value||0));
+    const no  = clampInt(Number(histNo.value||0));
+    const rec = clampInt(Number(histRec.value||0));
     if((yes + no) <= 0) return showHistErr("Inserisci almeno un Sì o un No.");
     if(rec > yes) return showHistErr("Ricontatti non possono superare i Sì.");
     chObj.overridePercent = null;
