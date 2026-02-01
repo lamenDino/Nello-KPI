@@ -1184,6 +1184,7 @@ hr.sep{border:0; border-top:1px solid rgba(255,255,255,.08); margin:12px 0;}
 
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
 <script>
 /* =========================================================
@@ -1198,14 +1199,17 @@ const FIREBASE_CONFIG = {
 
 let firebaseEnabled = false;
 let auth = null;
+let db = null;
 
 function initFirebase(){
   try{
     firebase.initializeApp(FIREBASE_CONFIG);
     auth = firebase.auth();
+    db = firebase.firestore();
     firebaseEnabled = true;
   }catch(e){
     firebaseEnabled = false;
+    db = null;
     console.error("Firebase init error:", e);
   }
 }
@@ -1249,6 +1253,66 @@ let DATA = defaultData();
 
 function storeKey(){ return APP_KEY_BASE + (currentUser?.uid || "guest"); }
 
+function isAuthed(){ return firebaseEnabled && !!db && currentUser && currentUser.uid && currentUser.uid !== "guest"; }
+function userDocRef(){ return db.collection("users").doc(currentUser.uid); }
+
+function sanitizeData(obj){
+  // Ensure minimum structure; fall back safely
+  try{
+    if(!obj || typeof obj !== "object") return defaultData();
+    if(!obj.years || typeof obj.years !== "object") return defaultData();
+    return obj;
+  }catch(e){ return defaultData(); }
+}
+
+async function loadCloudData(){
+  if(!isAuthed()) return null;
+  try{
+    const snap = await userDocRef().get();
+    if(snap.exists){
+      const d = snap.data();
+      if(d && d.data) return sanitizeData(d.data);
+    }
+  }catch(e){ console.warn("Cloud load failed:", e); }
+  return null;
+}
+
+let cloudSaveTimer = null;
+function scheduleCloudSave(){
+  if(!isAuthed()) return;
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer = setTimeout(()=>{ saveCloudNow(); }, 800);
+}
+
+async function saveCloudNow(){
+  if(!isAuthed()) return;
+  try{
+    await userDocRef().set({
+      schema: 1,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      data: DATA
+    }, { merge:true });
+  }catch(e){ console.warn("Cloud save failed:", e); }
+}
+
+async function syncFromCloud(){
+  if(!isAuthed()) return;
+  const cloud = await loadCloudData();
+  if(cloud){
+    DATA = cloud;
+    // persist locally for offline use
+    try{ localStorage.setItem(storeKey(), JSON.stringify(DATA)); }catch(e){}
+  }else{
+    // first login: push local data up
+    await saveCloudNow();
+  }
+  rebuildYearMonthSelectors();
+  resetSteps();
+  updateMiniKpi();
+  renderStats();
+}
+
+
 function loadData(){
   const raw = localStorage.getItem(storeKey());
   if(!raw){ DATA = defaultData(); saveData(); return; }
@@ -1260,7 +1324,7 @@ function loadData(){
     saveData();
   }
 }
-function saveData(){ localStorage.setItem(storeKey(), JSON.stringify(DATA)); }
+function saveData(){ localStorage.setItem(storeKey(), JSON.stringify(DATA)); scheduleCloudSave(); }
 
 function ensurePath(year, month){
   if(!DATA.years) DATA.years = {};
@@ -2962,6 +3026,7 @@ auth.onAuthStateChanged((user)=>{
   if(user){
     const name = user.displayName || user.email || "Utente";
     setUser(user.uid, name);
+    syncFromCloud();
     hideModal();
     // Show welcome only on fresh login
     if(lastAuthUid !== user.uid){
