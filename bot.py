@@ -797,8 +797,30 @@ def main():
             weekly_notify, interval=timedelta(weeks=1), first=next_friday_18()
         )
 
-    log.info("Bot avviato.")
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
+    # Su Render (web service) c'è RENDER_EXTERNAL_URL -> modalità webhook.
+    # In locale non c'è -> modalità polling.
+    base_url = (
+        os.environ.get("RENDER_EXTERNAL_URL")
+        or os.environ.get("WEBHOOK_URL", "")
+    ).strip()
+
+    if base_url:
+        port = int(os.environ.get("PORT", "10000"))
+        path = os.environ.get("WEBHOOK_PATH", "tg")
+        secret = os.environ.get("WEBHOOK_SECRET", "").strip() or None
+        log.info("Bot avviato in WEBHOOK su %s (porta %s).", base_url, port)
+        app.run_webhook(
+            listen="0.0.0.0",
+            port=port,
+            url_path=path,
+            webhook_url=f"{base_url.rstrip('/')}/{path}",
+            secret_token=secret,
+            drop_pending_updates=True,
+            allowed_updates=Update.ALL_TYPES,
+        )
+    else:
+        log.info("Bot avviato in POLLING (locale).")
+        app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
 if __name__ == "__main__":
