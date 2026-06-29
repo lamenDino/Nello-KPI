@@ -1,0 +1,17 @@
+# Configurazione per Render - Background Worker (bot sempre attivo in polling)
+services:
+  - type: worker
+    name: nello-kpi-bot
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    envVars:
+      - key: TELEGRAM_TOKEN
+        sync: false          # da inserire a mano nel pannello Render (segreto)
+      - key: FIREBASE_SERVICE_ACCOUNT
+        sync: false          # incolla qui il JSON del service account
+      - key: FIREBASE_API_KEY
+        value: AIzaSyCfhxHKn73vdmhX7PwGrb8U8A4_BxMWtzs
+      - key: ADMIN_PASSWORD
+        sync: false          # password admin (segreta) da inserire nel pannello
