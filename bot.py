@@ -24,8 +24,10 @@ Variabili d'ambiente:
 import os
 import json
 import math
+import asyncio
 import logging
 from io import BytesIO
+from pathlib import Path
 from datetime import datetime, timedelta
 
 import requests
@@ -70,6 +72,13 @@ MONTHS_IT = {
 }
 CHANNELS = {"phone": "Telefono", "chat": "Chat"}
 TYPE_NAMES = {"yes": "Sì", "no": "No", "rec": "Recuperati"}
+
+# File dell'app web serviti dallo stesso servizio (whitelist: niente bot.py ecc.)
+WEB_DIR = Path(__file__).resolve().parent
+WEB_FILES = {
+    "index.html", "style.css", "app.js",
+    "nello.png", "nello_angry.png", "nello_ok.png",
+}
 
 # stati delle conversazioni (input testuali)
 LOGIN_EMAIL, LOGIN_PASSWORD, ADMIN_PW = range(3)
@@ -808,19 +817,68 @@ def main():
         port = int(os.environ.get("PORT", "10000"))
         path = os.environ.get("WEBHOOK_PATH", "tg")
         secret = os.environ.get("WEBHOOK_SECRET", "").strip() or None
-        log.info("Bot avviato in WEBHOOK su %s (porta %s).", base_url, port)
-        app.run_webhook(
-            listen="0.0.0.0",
-            port=port,
-            url_path=path,
-            webhook_url=f"{base_url.rstrip('/')}/{path}",
-            secret_token=secret,
-            drop_pending_updates=True,
-            allowed_updates=Update.ALL_TYPES,
-        )
+        webhook_url = f"{base_url.rstrip('/')}/{path}"
+        log.info("Bot avviato in WEBHOOK (+ app web) su %s.", webhook_url)
+        asyncio.run(run_combined(app, port, path, secret, webhook_url))
     else:
         log.info("Bot avviato in POLLING (locale).")
         app.run_polling(allowed_updates=Update.ALL_TYPES)
+
+
+def build_web_app(application, path, secret):
+    """Costruisce il server HTTP: webhook del bot + file dell'app web."""
+    from aiohttp import web
+
+    async def tg_handler(request):
+        if secret and request.headers.get("X-Telegram-Bot-Api-Secret-Token") != secret:
+            return web.Response(status=403)
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return web.Response(status=400)
+        await application.update_queue.put(Update.de_json(data, application.bot))
+        return web.Response()
+
+    async def serve_index(request):
+        return web.FileResponse(WEB_DIR / "index.html")
+
+    async def serve_file(request):
+        name = request.match_info.get("name", "")
+        if name in WEB_FILES and (WEB_DIR / name).exists():
+            return web.FileResponse(WEB_DIR / name)
+        return web.Response(status=404, text="Not found")
+
+    web_app = web.Application()
+    web_app.router.add_post("/" + path, tg_handler)          # webhook del bot
+    web_app.router.add_get("/", serve_index)                 # app web
+    web_app.router.add_get("/healthz", lambda r: web.Response(text="ok"))
+    web_app.router.add_get("/{name}", serve_file)            # css/js/immagini
+    return web_app
+
+
+async def run_combined(app, port, path, secret, webhook_url):
+    """Un solo Web Service: serve l'app web E gestisce il webhook del bot."""
+    from aiohttp import web
+
+    await app.initialize()
+    await app.start()
+    try:
+        await app.bot.set_webhook(
+            url=webhook_url,
+            secret_token=secret,
+            allowed_updates=Update.ALL_TYPES,
+            drop_pending_updates=True,
+        )
+        log.info("Webhook impostato su %s", webhook_url)
+    except Exception:  # noqa: BLE001
+        log.exception("set_webhook fallito")
+
+    runner = web.AppRunner(build_web_app(app, path, secret))
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+    log.info("App web + bot attivi sulla porta %s", port)
+    await asyncio.Event().wait()
 
 
 if __name__ == "__main__":
